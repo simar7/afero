@@ -713,6 +713,32 @@ func TestSetenv(t *testing.T) {
 	}
 }
 
+func TestUnsetenv(t *testing.T) {
+	for _, fs := range Fss {
+
+		testKey := "testKey"
+		testValue := "testValue"
+
+		// Try to set the value to the key
+		err := fs.Setenv(testKey, testValue)
+		if err != nil {
+			t.Errorf("%v: Value assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		// Try to unset the value to the key
+		err = fs.Unsetenv(testKey)
+		if err != nil {
+			t.Errorf("%v: Value de-assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		// Check if value still exists
+		retrievedValue := fs.Getenv(testKey)
+		if retrievedValue != "" {
+			t.Errorf("%v: Value is not cleared. Retrieved: %s", fs.Name(), retrievedValue)
+		}
+	}
+}
+
 func findNames(fs Fs, t *testing.T, tDir, testSubDir string, root, sub []string) {
 	var foundRoot bool
 	for _, e := range root {
