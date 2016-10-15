@@ -693,6 +693,26 @@ func TestPipe(t *testing.T) {
 	}
 }
 
+func TestSetenv(t *testing.T) {
+	for _, fs := range Fss {
+
+		testKey := "testKey"
+		testValue := "testValue"
+
+		// Try to set the value to the key
+		err := fs.Setenv(testKey, testValue)
+		if err != nil {
+			t.Errorf("%v: Value assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		// Check if value is the same as assigned
+		retrievedValue := fs.Getenv(testKey)
+		if testValue != retrievedValue {
+			t.Errorf("%v: Value mismatch failure. Assigned: %s, Retrieved: %s", fs.Name(), testValue, retrievedValue)
+		}
+	}
+}
+
 func findNames(fs Fs, t *testing.T, tDir, testSubDir string, root, sub []string) {
 	var foundRoot bool
 	for _, e := range root {

@@ -113,6 +113,10 @@ func (OsFs) Unsetenv(key string) error {
 	return os.Unsetenv(key)
 }
 
+func (OsFs) Getenv(key string) string {
+	return os.Getenv(key)
+}
+
 func (OsFs) Lookupenv(key string) (string, bool) {
 	return os.LookupEnv(key)
 }

@@ -109,6 +109,10 @@ type Fs interface {
 	// Unsetenv unsets the values of the environment variable named by the key.
 	Unsetenv(key string) error
 
+	// Getenv retrieves the value of the environment variable named by the key.
+	// If the variable is not present, the value will be empty.
+	Getenv(key string) string
+
 	// Lookupenv retrieves the value of the environment variable named by the key
 	// If the variable is present (value may be empty) boolean true is returned
 	// Otherwise am empty value is returned with boolean false.
