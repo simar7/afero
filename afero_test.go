@@ -623,6 +623,56 @@ func TestReaddirAll(t *testing.T) {
 	}
 }
 
+func TestLink(t *testing.T) {
+	for _, fs := range Fss {
+
+		xOld, err := TempFile(fs, "", "afero")
+		if err != nil {
+			t.Error(fmt.Sprint("unable to work with temp file", err))
+		}
+
+		xNew, err := TempFile(fs, "", "afero")
+		if err != nil {
+			t.Error(fmt.Sprint("unable to work with temp file", err))
+		}
+
+		oldPath := xOld.Name()
+		xOld.Close()
+
+		newPath := xNew.Name()
+		xNew.Close()
+
+		err = fs.Link(oldPath, newPath)
+		if err != nil {
+			t.Errorf("%v: Link() failed: %v", fs.Name(), err)
+			continue
+		}
+
+		_, err = fs.Stat(newPath)
+		if !os.IsNotExist(err) {
+			t.Errorf("%v: Link() didn't create a link from %s to %s", fs.Name(), oldPath, newPath)
+			continue
+		}
+
+		// Deleting non-existent file should raise error
+		badOldPath := "badOldPath"
+		err = fs.Link(badOldPath, newPath)
+		if !os.IsNotExist(err) {
+			t.Errorf("%v: Link() didn't raise error for non-existent old path", fs.Name())
+		}
+
+		f, err := fs.Open(tDir)
+		if err != nil {
+			t.Error("TestDir should still exist:", err)
+		}
+
+		names, err := f.Readdirnames(-1)
+		if err != nil {
+			t.Error("Readdirnames failed:", err)
+		}
+	}
+}
+
 func findNames(fs Fs, t *testing.T, tDir, testSubDir string, root, sub []string) {
 	var foundRoot bool
 	for _, e := range root {
