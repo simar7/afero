@@ -673,6 +673,26 @@ func TestLink(t *testing.T) {
 	}
 }
 
+func TestPipe(t *testing.T) {
+	for _, fs := range Fss {
+
+		r, w, err := fs.Pipe()
+		if err != nil {
+			t.Errorf("%v: Pipe() failed", fs.Name())
+		}
+
+		_, err = fs.Stat(r)
+		if !os.IsNotExist(err) {
+			t.Errorf("%v: read end of the Pipe() failed: %s", fs.Name(), err)
+		}
+
+		_, err = fs.Stat(w)
+		if !os.IsNotExist(err) {
+			t.Errorf("%v: write end of the Pipe() failed: %s", fs.Name(), err)
+		}
+	}
+}
+
 func findNames(fs Fs, t *testing.T, tDir, testSubDir string, root, sub []string) {
 	var foundRoot bool
 	for _, e := range root {
