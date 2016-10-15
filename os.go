@@ -92,3 +92,27 @@ func (OsFs) Chmod(name string, mode os.FileMode) error {
 func (OsFs) Chtimes(name string, atime time.Time, mtime time.Time) error {
 	return os.Chtimes(name, atime, mtime)
 }
+
+func (OsFs) Link(oldname string, newname string) error {
+	return os.Link(oldname, newname)
+}
+
+func (OsFs) Pipe() (File, File, error) {
+	r, w, e := os.Pipe()
+	if r == nil || w == nil {
+		return nil, nil, e
+	}
+	return r, w, e
+}
+
+func (OsFs) Setenv(key string, value string) error {
+	return os.Setenv(key, value)
+}
+
+func (OsFs) Unsetenv(key string) error {
+	return os.Unsetenv(key)
+}
+
+func (OsFs) Lookupenv(key string) (string, bool) {
+	return os.LookupEnv(key)
+}

@@ -91,11 +91,28 @@ type Fs interface {
 	// The name of this FileSystem
 	Name() string
 
-	//Chmod changes the mode of the named file to mode.
+	// Chmod changes the mode of the named file to mode.
 	Chmod(name string, mode os.FileMode) error
 
-	//Chtimes changes the access and modification times of the named file
+	// Chtimes changes the access and modification times of the named file
 	Chtimes(name string, atime time.Time, mtime time.Time) error
+
+	// Link creates newname as a hard link to the oldname file.
+	Link(oldname string, newname string) error
+
+	// Pipe returns a pair of connected files.
+	Pipe() (File, File, error)
+
+	// Setenv sets the value of the environment variable named by the key.
+	Setenv(key string, value string) error
+
+	// Unsetenv unsets the values of the environment variable named by the key.
+	Unsetenv(key string) error
+
+	// Lookupenv retrieves the value of the environment variable named by the key
+	// If the variable is present (value may be empty) boolean true is returned
+	// Otherwise am empty value is returned with boolean false.
+	Lookupenv(key string) (string, bool)
 }
 
 var (
