@@ -739,6 +739,43 @@ func TestUnsetenv(t *testing.T) {
 	}
 }
 
+func TestLookupenv(t *testing.T) {
+	for _, fs := range Fss {
+
+		testKey := "testKey"
+		testValue := "testValue"
+
+		// Check if the unset variable exists
+		retVar, present := fs.Lookupenv(testKey)
+		if retVar != nil || present != false {
+			t.Errorf("%v: Found a variable that was never set: %s", fs.Name(), retVar)
+		}
+
+		// Try to set the value to the key
+		err := fs.Setenv(testKey, testValue)
+		if err != nil {
+			t.Errorf("%v: Value assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		retVar, present = fs.Lookupenv(testKey)
+		if retVar != testKey || present != true {
+			t.Errorf("%v: Found a set variable that is not present: %s, found: %s", fs.Name(), testKey, retVar)
+		}
+
+		// Try to unset the value to the key
+		err = fs.Unsetenv(testKey)
+		if err != nil {
+			t.Errorf("%v: Value de-assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		// Check if value still exists
+		retVar, present = fs.Lookupenv(testKey)
+		if retVar != "" || present != false {
+			t.Errorf("%v: Key variable is not cleared: %s", fs.Name(), retVar)
+		}
+	}
+}
+
 func findNames(fs Fs, t *testing.T, tDir, testSubDir string, root, sub []string) {
 	var foundRoot bool
 	for _, e := range root {
