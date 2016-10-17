@@ -660,16 +660,6 @@ func TestLink(t *testing.T) {
 		if !os.IsNotExist(err) {
 			t.Errorf("%v: Link() didn't raise error for non-existent old path", fs.Name())
 		}
-
-		f, err := fs.Open(tDir)
-		if err != nil {
-			t.Error("TestDir should still exist:", err)
-		}
-
-		names, err := f.Readdirnames(-1)
-		if err != nil {
-			t.Error("Readdirnames failed:", err)
-		}
 	}
 }
 
