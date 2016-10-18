@@ -294,3 +294,27 @@ func (u *CacheOnReadFs) Create(name string) (File, error) {
 	}
 	return &UnionFile{base: bfh, layer: lfh}, nil
 }
+
+func (u *CacheOnReadFs) Getenv(key string) string {
+	return u.layer.Getenv(key)
+}
+
+func (u *CacheOnReadFs) Link(oldname string, newname string) error {
+	return u.layer.Link(oldname, newname)
+}
+
+func (u *CacheOnReadFs) Setenv(key string, value string) error {
+	return u.layer.Setenv(key, value)
+}
+
+func (u *CacheOnReadFs) Unsetenv(key string) error {
+	return u.layer.Unsetenv(key)
+}
+
+func (u *CacheOnReadFs) Lookupenv(key string) (string, bool) {
+	return u.layer.Lookupenv(key)
+}
+
+func (u *CacheOnReadFs) Pipe() (File, File, error) {
+	return u.layer.Pipe()
+}
