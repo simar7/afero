@@ -142,4 +142,47 @@ func (b *BasePathFs) Create(name string) (f File, err error) {
 	return b.source.Create(name)
 }
 
+func (b *BasePathFs) Getenv(key string) string {
+	if retVal := b.Getenv(key); retVal == "" {
+		return ""
+	}
+	return b.source.Getenv(key)
+}
+
+func (b *BasePathFs) Setenv(key string, value string) error {
+	if err := b.Setenv(key, value); err != nil {
+		return err
+	}
+	return b.source.Setenv(key, value)
+}
+
+func (b *BasePathFs) Unsetenv(key string) error {
+	if err := b.Unsetenv(key); err != nil {
+		return err
+	}
+	return b.source.Unsetenv(key)
+}
+
+func (b *BasePathFs) Link(oldname string, newname string) error {
+	if err := b.Link(oldname, newname); err != nil {
+		return err
+	}
+	return b.source.Link(oldname, newname)
+}
+
+func (b *BasePathFs) Lookupenv(key string) (string, bool) {
+	if retVal, _ := b.Lookupenv(key); retVal == "" {
+		return "", false
+	}
+	return b.source.Lookupenv(key)
+}
+
+func (b *BasePathFs) Pipe() (File, File, error) {
+	r, w, e := b.Pipe()
+	if r == nil || w == nil {
+		return nil, nil, e
+	}
+	return r, w, e
+}
+
 // vim: ts=4 sw=4 noexpandtab nolist syn=go

@@ -623,6 +623,149 @@ func TestReaddirAll(t *testing.T) {
 	}
 }
 
+func TestLink(t *testing.T) {
+	for _, fs := range Fss {
+
+		xOld, err := TempFile(fs, "", "afero")
+		if err != nil {
+			t.Error(fmt.Sprint("unable to work with temp file", err))
+		}
+
+		xNew, err := TempFile(fs, "", "afero")
+		if err != nil {
+			t.Error(fmt.Sprint("unable to work with temp file", err))
+		}
+
+		oldPath := xOld.Name()
+		xOld.Close()
+
+		newPath := xNew.Name()
+		xNew.Close()
+
+		err = fs.Link(oldPath, newPath)
+		if err != nil {
+			t.Errorf("%v: Link() failed: %v", fs.Name(), err)
+			continue
+		}
+
+		_, err = fs.Stat(newPath)
+		if !os.IsNotExist(err) {
+			t.Errorf("%v: Link() didn't create a link from %s to %s", fs.Name(), oldPath, newPath)
+			continue
+		}
+
+		// Deleting non-existent file should raise error
+		badOldPath := "badOldPath"
+		err = fs.Link(badOldPath, newPath)
+		if !os.IsNotExist(err) {
+			t.Errorf("%v: Link() didn't raise error for non-existent old path", fs.Name())
+		}
+	}
+}
+
+func TestPipe(t *testing.T) {
+	for _, fs := range Fss {
+
+		r, w, err := fs.Pipe()
+		if err != nil {
+			t.Errorf("%v: Pipe() failed", fs.Name())
+		}
+
+		_, err = fs.Stat(r)
+		if !os.IsNotExist(err) {
+			t.Errorf("%v: read end of the Pipe() failed: %s", fs.Name(), err)
+		}
+
+		_, err = fs.Stat(w)
+		if !os.IsNotExist(err) {
+			t.Errorf("%v: write end of the Pipe() failed: %s", fs.Name(), err)
+		}
+	}
+}
+
+func TestSetenv(t *testing.T) {
+	for _, fs := range Fss {
+
+		testKey := "testKey"
+		testValue := "testValue"
+
+		// Try to set the value to the key
+		err := fs.Setenv(testKey, testValue)
+		if err != nil {
+			t.Errorf("%v: Value assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		// Check if value is the same as assigned
+		retrievedValue := fs.Getenv(testKey)
+		if testValue != retrievedValue {
+			t.Errorf("%v: Value mismatch failure. Assigned: %s, Retrieved: %s", fs.Name(), testValue, retrievedValue)
+		}
+	}
+}
+
+func TestUnsetenv(t *testing.T) {
+	for _, fs := range Fss {
+
+		testKey := "testKey"
+		testValue := "testValue"
+
+		// Try to set the value to the key
+		err := fs.Setenv(testKey, testValue)
+		if err != nil {
+			t.Errorf("%v: Value assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		// Try to unset the value to the key
+		err = fs.Unsetenv(testKey)
+		if err != nil {
+			t.Errorf("%v: Value de-assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		// Check if value still exists
+		retrievedValue := fs.Getenv(testKey)
+		if retrievedValue != "" {
+			t.Errorf("%v: Value is not cleared. Retrieved: %s", fs.Name(), retrievedValue)
+		}
+	}
+}
+
+func TestLookupenv(t *testing.T) {
+	for _, fs := range Fss {
+
+		testKey := "testKey"
+		testValue := "testValue"
+
+		// Check if the unset variable exists
+		retVar, present := fs.Lookupenv(testKey)
+		if retVar != nil || present != false {
+			t.Errorf("%v: Found a variable that was never set: %s", fs.Name(), retVar)
+		}
+
+		// Try to set the value to the key
+		err := fs.Setenv(testKey, testValue)
+		if err != nil {
+			t.Errorf("%v: Value assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		retVar, present = fs.Lookupenv(testKey)
+		if retVar != testKey || present != true {
+			t.Errorf("%v: Found a set variable that is not present: %s, found: %s", fs.Name(), testKey, retVar)
+		}
+
+		// Try to unset the value to the key
+		err = fs.Unsetenv(testKey)
+		if err != nil {
+			t.Errorf("%v: Value de-assignment to the key failed: %s", fs.Name(), err)
+		}
+
+		// Check if value still exists
+		retVar, present = fs.Lookupenv(testKey)
+		if retVar != "" || present != false {
+			t.Errorf("%v: Key variable is not cleared: %s", fs.Name(), retVar)
+		}
+	}
+}
+
 func findNames(fs Fs, t *testing.T, tDir, testSubDir string, root, sub []string) {
 	var foundRoot bool
 	for _, e := range root {
