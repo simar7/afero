@@ -251,3 +251,27 @@ func (u *CopyOnWriteFs) MkdirAll(name string, perm os.FileMode) error {
 func (u *CopyOnWriteFs) Create(name string) (File, error) {
 	return u.OpenFile(name, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0666)
 }
+
+func (u *CopyOnWriteFs) Getenv(key string) string {
+	return u.layer.Getenv(key)
+}
+
+func (u *CopyOnWriteFs) Link(oldname string, newname string) error {
+	return u.layer.Link(oldname, newname)
+}
+
+func (u *CopyOnWriteFs) Setenv(key string, value string) error {
+	return u.layer.Setenv(key, value)
+}
+
+func (u *CopyOnWriteFs) Unsetenv(key string) error {
+	return u.layer.Unsetenv(key)
+}
+
+func (u *CopyOnWriteFs) Lookupenv(key string) (string, bool) {
+	return u.layer.Lookupenv(key)
+}
+
+func (u *CopyOnWriteFs) Pipe() (File, File, error) {
+	return u.layer.Pipe()
+}
